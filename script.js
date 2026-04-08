@@ -8,7 +8,20 @@ const errorTitle = document.getElementById('error-title');
 const errorMessage = document.getElementById('error-message');
 const errorDismiss = document.getElementById('error-dismiss');
 const appBackground = document.getElementById('app-background');
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+const favoritesSection = document.getElementById('favorites-section');
+const favoritesList = document.getElementById('favorites-list');
+const favBtn = document.getElementById('fav-btn');
+const favIcon = document.getElementById('fav-icon');
+const tempFilter = document.getElementById('temp-filter');
+const conditionFilter = document.getElementById('condition-filter');
+const sortSelect = document.getElementById('sort-select');
 
+let currentDailyForecast = null;
+let currentCityLocation = null;
+let favorites = JSON.parse(localStorage.getItem('weather_favorites')) || [];
+let isLightTheme = localStorage.getItem('weather_theme') === 'light';
 const weatherDescriptions = {
     0: { text: 'Clear Sky', emoji: '☀️' },
     1: { text: 'Mainly Clear', emoji: '🌤️' },
@@ -65,18 +78,35 @@ function showWeather() {
     errorState.classList.add('hidden');
 }
 
-function applyTheme(temperature) {
+function applyTheme(temperature, weatherCode) {
     appBackground.className = 'app-background';
-    if (temperature <= 10) {
+    if ([51,53,55,56,57,61,63,65,66,67,71,73,75,77,80,81,82,85,86,95,96,99].includes(weatherCode)) {
+        appBackground.classList.add('theme-rain');
+    } else if (temperature <= 10) {
         appBackground.classList.add('theme-cold');
     } else if (temperature >= 30) {
         appBackground.classList.add('theme-hot');
-    } else if (temperature > 10 && temperature < 30) {
-        appBackground.classList.add('theme-mild');
     } else {
-        appBackground.classList.add('theme-default');
+        appBackground.classList.add('theme-mild');
     }
 }
+
+function updateThemeUI() {
+    if (isLightTheme) {
+        document.body.classList.add('light-theme');
+        themeIcon.textContent = '🌙';
+    } else {
+        document.body.classList.remove('light-theme');
+        themeIcon.textContent = '☀️';
+    }
+}
+updateThemeUI();
+
+themeToggle.addEventListener('click', () => {
+    isLightTheme = !isLightTheme;
+    localStorage.setItem('weather_theme', isLightTheme ? 'light' : 'dark');
+    updateThemeUI();
+});
 
 function getDayName(dateString) {
     let date = new Date(dateString + 'T00:00:00');
@@ -209,6 +239,7 @@ function renderCurrentWeather(weather, location) {
     if (location.admin) displayName += `, ${location.admin}`;
     if (location.country) displayName += `, ${location.country}`;
 
+    currentCityLocation = displayName;
     document.getElementById('city-name').textContent = displayName;
     document.getElementById('city-coords').textContent = `${location.lat.toFixed(2)}°N, ${location.lon.toFixed(2)}°E`;
     document.getElementById('current-temp').textContent = temp;
@@ -217,35 +248,132 @@ function renderCurrentWeather(weather, location) {
     document.getElementById('wind-speed').textContent = `${current.wind_speed_10m} km/h`;
     document.getElementById('humidity-val').textContent = `${current.relative_humidity_2m}%`;
 
-    applyTheme(temp);
+    applyTheme(temp, current.weather_code);
+    updateFavoriteButton();
+    favBtn.classList.remove('hidden');
+}
+
+function updateForecastUI() {
+    if (!currentDailyForecast) return;
+    let container = document.getElementById('forecast-grid');
+
+    let daysArray = currentDailyForecast.time.map((time, index) => {
+        return {
+            dateStr: time,
+            dayName: getDayName(time),
+            maxTemp: Math.round(currentDailyForecast.temperature_2m_max[index]),
+            minTemp: Math.round(currentDailyForecast.temperature_2m_min[index]),
+            weatherCode: currentDailyForecast.weather_code[index],
+            index: index
+        };
+    }).slice(1, 6);
+
+    let tempFilterVal = tempFilter.value;
+    let condFilterVal = conditionFilter.value;
+
+    let filteredDays = daysArray.filter(day => {
+        let keepTemp = true;
+        if (tempFilterVal === 'hot') keepTemp = day.maxTemp > 20;
+        else if (tempFilterVal === 'cold') keepTemp = day.maxTemp < 10;
+        else if (tempFilterVal === 'mild') keepTemp = day.maxTemp >= 10 && day.maxTemp <= 20;
+
+        let keepCond = true;
+        let info = getWeatherInfo(day.weatherCode).text.toLowerCase();
+        if (condFilterVal === 'clear') keepCond = info.includes('clear') || info.includes('sun');
+        else if (condFilterVal === 'clouds') keepCond = info.includes('cloud') || info.includes('overcast');
+        else if (condFilterVal === 'rain') keepCond = info.includes('rain') || info.includes('drizzle') || info.includes('shower');
+        else if (condFilterVal === 'snow') keepCond = info.includes('snow');
+
+        return keepTemp && keepCond;
+    });
+
+    let sortVal = sortSelect.value;
+    filteredDays.sort((a, b) => {
+        if (sortVal === 'date-asc') return a.index - b.index;
+        if (sortVal === 'date-desc') return b.index - a.index;
+        if (sortVal === 'temp-desc') return b.maxTemp - a.maxTemp;
+        if (sortVal === 'temp-asc') return a.maxTemp - b.maxTemp;
+        return 0;
+    });
+
+    container.innerHTML = filteredDays.map(day => {
+        let weatherInfo = getWeatherInfo(day.weatherCode);
+        return `
+            <div class="forecast-card">
+                <p class="forecast-day">${day.dayName}</p>
+                <span class="forecast-emoji">${weatherInfo.emoji}</span>
+                <div class="forecast-temps">
+                    <span class="forecast-max">${day.maxTemp}°</span>
+                    <span class="forecast-min">${day.minTemp}°</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (filteredDays.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">No forecast matches your filters.</p>';
+    }
 }
 
 function renderForecast(weather) {
-    let container = document.getElementById('forecast-grid');
-    container.innerHTML = '';
+    currentDailyForecast = weather.daily;
+    updateForecastUI();
+}
 
-    let days = weather.daily;
-    let count = Math.min(days.time.length, 5);
+[tempFilter, conditionFilter, sortSelect].forEach(select => {
+    select.addEventListener('change', updateForecastUI);
+});
 
-    for (let i = 1; i <= count; i++) {
-        let dayName = getDayName(days.time[i]);
-        let maxTemp = Math.round(days.temperature_2m_max[i]);
-        let minTemp = Math.round(days.temperature_2m_min[i]);
-        let weatherInfo = getWeatherInfo(days.weather_code[i]);
+function renderFavorites() {
+    if (favorites.length === 0) {
+        favoritesSection.classList.add('hidden');
+        return;
+    }
+    favoritesSection.classList.remove('hidden');
+    favoritesList.innerHTML = favorites.map(city => `
+        <div class="favorite-pill" data-city="${city}">
+            <span class="fav-city-name">${city}</span>
+            <span class="fav-remove" data-city="${city}">✕</span>
+        </div>
+    `).join('');
+}
 
-        let card = document.createElement('div');
-        card.className = 'forecast-card';
-        card.innerHTML = `
-            <p class="forecast-day">${dayName}</p>
-            <span class="forecast-emoji">${weatherInfo.emoji}</span>
-            <div class="forecast-temps">
-                <span class="forecast-max">${maxTemp}°</span>
-                <span class="forecast-min">${minTemp}°</span>
-            </div>
-        `;
-        container.appendChild(card);
+function updateFavoriteButton() {
+    if (!currentCityLocation) return;
+    if (favorites.includes(currentCityLocation)) {
+        favIcon.textContent = '❤️';
+    } else {
+        favIcon.textContent = '🤍';
     }
 }
+
+favBtn.addEventListener('click', () => {
+    if (!currentCityLocation) return;
+    if (favorites.includes(currentCityLocation)) {
+        favorites = favorites.filter(c => c !== currentCityLocation);
+    } else {
+        favorites.push(currentCityLocation);
+    }
+    localStorage.setItem('weather_favorites', JSON.stringify(favorites));
+    updateFavoriteButton();
+    renderFavorites();
+});
+
+favoritesList.addEventListener('click', (e) => {
+    if (e.target.classList.contains('fav-remove')) {
+        let city = e.target.getAttribute('data-city');
+        favorites = favorites.filter(c => c !== city);
+        localStorage.setItem('weather_favorites', JSON.stringify(favorites));
+        updateFavoriteButton();
+        renderFavorites();
+    } else if (e.target.closest('.favorite-pill')) {
+        let city = e.target.closest('.favorite-pill').getAttribute('data-city');
+        cityInput.value = city;
+        searchCity(city);
+    }
+});
+
+renderFavorites();
 
 function renderAirQuality(aqData) {
     let current = aqData.current;
@@ -315,21 +443,25 @@ async function searchCity(cityName) {
     }
 }
 
+let debounceTimer;
+cityInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    let val = cityInput.value.trim();
+    if (val.length < 3) return;
+    debounceTimer = setTimeout(() => {
+        searchCity(val);
+    }, 600);
+});
+
 searchForm.addEventListener('submit', function (e) {
     e.preventDefault();
+    clearTimeout(debounceTimer);
     searchCity(cityInput.value);
 });
 
 errorDismiss.addEventListener('click', function () {
     errorState.classList.add('hidden');
     cityInput.focus();
-});
-
-cityInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        searchCity(cityInput.value);
-    }
 });
 
 searchCity('New Delhi');

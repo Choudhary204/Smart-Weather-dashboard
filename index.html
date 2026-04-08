@@ -38,7 +38,15 @@
                     </svg>
                 </button>
             </form>
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+                <span id="theme-icon" class="theme-icon">☀️</span>
+            </button>
         </header>
+
+        <section id="favorites-section" class="favorites-section hidden">
+            <h3 class="favorites-title">★ Favorite Cities</h3>
+            <div id="favorites-list" class="favorites-list"></div>
+        </section>
 
         <div id="loading-state" class="loading-state hidden">
             <div class="loader-ring">
@@ -61,7 +69,12 @@
                 <div class="current-weather-card">
                     <div class="current-left">
                         <div class="city-info">
-                            <h2 id="city-name">—</h2>
+                            <div class="city-name-wrapper">
+                                <h2 id="city-name">—</h2>
+                                <button id="fav-btn" class="fav-btn hidden" aria-label="Toggle Favorite" title="Add to Favorites">
+                                    <span id="fav-icon">🤍</span>
+                                </button>
+                            </div>
                             <p id="city-coords" class="coords-text"></p>
                         </div>
                         <div class="temperature-display">
@@ -91,15 +104,38 @@
             </section>
 
             <section class="forecast-section">
-                <h3 class="section-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                    5-Day Forecast
-                </h3>
+                <div class="forecast-header">
+                    <h3 class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        5-Day Forecast
+                    </h3>
+                    <div class="forecast-controls">
+                        <select id="temp-filter" class="filter-select" aria-label="Filter by Temperature">
+                            <option value="all">All Temps</option>
+                            <option value="hot">> 20°C</option>
+                            <option value="mild">10°C - 20°C</option>
+                            <option value="cold">< 10°C</option>
+                        </select>
+                        <select id="condition-filter" class="filter-select" aria-label="Filter by Weather">
+                            <option value="all">All Weather</option>
+                            <option value="clear">Clear</option>
+                            <option value="clouds">Clouds</option>
+                            <option value="rain">Rain/Drizzle</option>
+                            <option value="snow">Snow</option>
+                        </select>
+                        <select id="sort-select" class="filter-select" aria-label="Sort Forecast">
+                            <option value="date-asc">Date (Asc)</option>
+                            <option value="date-desc">Date (Desc)</option>
+                            <option value="temp-desc">Temp (High to Low)</option>
+                            <option value="temp-asc">Temp (Low to High)</option>
+                        </select>
+                    </div>
+                </div>
                 <div id="forecast-grid" class="forecast-grid"></div>
             </section>
 
