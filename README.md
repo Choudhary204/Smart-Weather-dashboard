@@ -1,204 +1,142 @@
-🌦️ Smart City Weather Dashboard
+# 🌦️ Smart Weather Dashboard
 
-Description
+## 📌 Project Overview
 
-Smart City Weather Dashboard is a modern web application that provides real-time weather updates along with **Air Quality (AQI insights)** and smart lifestyle suggestions like *“What to Wear”*.
+Smart Weather Dashboard ek web application hai jo users ko real-time weather information provide karta hai. Users kisi bhi city ka weather search kar sakte hain aur unhe current temperature ke saath 5-day forecast bhi milta hai.
 
-The app uses the **Open-Meteo API** for weather data and its **Air Quality API** to fetch pollution data, making it a complete environmental dashboard.
-
----
-
-Features
-
-🌍 Core Features
-
-Search by City** – Get weather data for any location
-5-Day Forecast** – Plan ahead with weather predictions
-Real-Time Weather
-
-  * Temperature
-  * Wind speed
-  * Weather conditions
+Yeh project JavaScript, API integration aur responsive UI development concepts ko demonstrate karta hai.
 
 ---
 
-Air Quality (AQI) Features
+## 🚀 Features
 
-* Displays pollution data:
-
-  * PM2.5
-  * PM10
-  * Carbon Monoxide (CO)
-* Health suggestions:
-
-  *  Wear mask if pollution is high
-  *  Avoid outdoor activities in poor air
-
----
-
-## Smart Suggestions
-
-* Carry umbrella if rain probability > 20%
-* Wear jacket if temperature is low
-*  Stay hydrated in hot weather
+* 🔍 Search weather by city name
+* 📅 5-Day Weather Forecast
+* 🌡️ Real-time temperature and weather conditions
+* 🎨 Dynamic UI (temperature ke according color change)
+* 🌙 Dark Mode / Light Mode toggle
+* ⚡ Fast and responsive design
+* 🔄 Data fetching using API
+* 📊 Search, Filtering & Sorting using Array HOFs
 
 ---
 
-## Advanced Features
+## 🛠️ Tech Stack
 
-* Geolocation Support** (auto-detect user location)
-* Dynamic UI**
-
-  * Blue → Cold
-  * Orange → Hot
-* Dynamic Weather Icons**
+* HTML5
+* CSS3
+* JavaScript (ES6)
+* OpenWeatherMap API
 
 ---
 
-## Tech Stack
+## 🌐 API Used
 
-* Frontend:** HTML, CSS, JavaScript / 
-* APIs Used:
+* OpenWeatherMap API
 
-  * Weather API (Open-Meteo)
-  * Air Quality API (Open-Meteo)
-* Concepts:
-
-  * Fetch API
-  * Async/Await
-  * API Integration
-  * DOM Manipulation / React Hooks
+  * Provides real-time weather data
+  * 5-day forecast
+  * Weather icons and conditions
 
 ---
 
-##  APIs Used
+## ⚙️ Installation & Setup
 
-## Weather API
+1. Clone the repository:
 
-```bash id="x1a9p2"
-https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=temperature_2m,precipitation&daily=temperature_2m_max,temperature_2m_min
+```bash
+git clone https://github.com/your-username/weather-dashboard.git
 ```
 
-## Air Quality API
+2. Navigate to project folder:
 
-```bash id="n8k3f1"
-https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&hourly=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone
+```bash
+cd weather-dashboard
 ```
 
----
-
-# Data Fetched from API
-
-# Weather Data
-
-* Temperature
-* Wind speed & direction
-* Rain probability
-* Daily min/max temperature
-* Weather codes (for icons & UI)
-
-## Air Quality Data
-
-* PM2.5
-* PM10
-* CO (Carbon Monoxide)
-* NO₂ (Nitrogen Dioxide)
-* O₃ (Ozone)
+3. Open `index.html` in your browser
 
 ---
 
-## How It Works
+## ▶️ Usage
 
-1. User enters city or enables location
-2. App converts city → latitude & longitude
-3. Fetches:
+1. Enter city name in search bar
+2. Click search button
+3. View:
 
-   * Weather data from Open-Meteo
-   * Air quality data from Air Quality API
-4. Displays:
-
-   * Weather conditions
-   * AQI insights
-   * Smart suggestions
+   * Current weather
+   * Temperature
+   * Forecast
+4. Toggle dark/light mode as per preference
 
 ---
 
-## 💻 API Integration Example
+## 📸 Screenshots
 
-### Weather Fetch
+(Add your screenshots here)
 
-```js id="w3k9d0"
-fetch(`https://api.open-meteo.com/v1/forecast?latitude=19.07&longitude=72.87&current_weather=true`)
-  .then(res => res.json())
-  .then(data => console.log(data.current_weather));
-```
-
-### AQI Fetch
-
-```js id="p4d8k2"
-fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=19.07&longitude=72.87&hourly=pm2_5,pm10`)
-  .then(res => res.json())
-  .then(data => console.log(data.hourly));
-```
+* Home Page
+* Weather Results
+* Dark Mode
 
 ---
 
-## 📂 Project Structure
+## 🌍 Live Demo
 
-```id="s8x2n1"
-/weather-dashboard
-│── index.html
-│── style.css
-│── script.js
-│── assets/
-```
+🔗 Live Link: https://zingy-dragon-78e05c.netlify.app/
 
 ---
 
-# UI Ideas
+## 🧹 Code Structure
 
-* Dark theme 🌙
-* Glassmorphism cards
-* Gradient backgrounds based on weather
-* AQI color indicators:
-
-  * Green → Good
-  * Yellow → Moderate
-  * Red → Poor
+* `index.html` → UI structure
+* `style.css` → Styling
+* `script.js` → Logic & API calls
 
 ---
 
-## Future Improvements
+## ⚠️ Error Handling
 
-* 📊 Weather + AQI charts
-* 🌎 Multiple city comparison
-* 🔔 Weather alerts
-* 🌙 Dark mode toggle
-
----
-
-## 🧠 Key Learning Outcomes
-
-* Working with multiple APIs
-* Handling asynchronous data
-* Converting raw data into meaningful insights
-* Building user-friendly UI
+* Handles invalid city names
+* Handles API errors
+* Displays loading state during fetch
 
 ---
 
-#👨‍💻 Author
+## 🔮 Future Improvements
 
-Sonu Choudhary
-
----
-
-#⭐ Acknowledgements
-
-* Open-Meteo API
-* Public APIs GitHub Repository
+* 📍 Auto-detect user location (Geolocation API)
+* ⭐ Save favorite cities (Local Storage)
+* ⚡ Debounced search for better performance
+* 📊 More detailed weather analytics
 
 ---
 
-## 📜 License
+## ✅ Final Checklist
 
-This project is open-source and available under the MIT License.
+* ✔️ Responsive design
+* ✔️ API working properly
+* ✔️ Clean and readable code
+* ✔️ No console errors
+* ✔️ README completed
+* ✔️ Project deployed
+
+---
+
+## 🙌 Acknowledgements
+
+* OpenWeatherMap API
+* Inspiration from modern weather apps
+
+---
+
+## 📌 Author
+
+* Your Name
+
+---
+
+💡 *This project was built as part of a JavaScript learning milestone to demonstrate API integration and UI development skills.*
+
+---
+
