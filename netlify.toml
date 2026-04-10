@@ -1,0 +1,14 @@
+[build]
+  # Provide Netlify with the command to build your source into a directory
+  command = "mkdir -p out && cp index.html style.css script.js config.js out/"
+  
+  # Tell Netlify which folder to deploy 
+  publish = "out"
+
+[[headers]]
+  # Basic security headers
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
